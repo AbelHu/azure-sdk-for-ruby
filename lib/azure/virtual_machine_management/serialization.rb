@@ -104,6 +104,7 @@ module Azure
                   xml.SubnetNames do
                     xml.SubnetName options[:subnet_name]
                   end
+                  xml.StaticVirtualNetworkIPAddress options[:static_virtual_network_ipaddress]
                 end
               end
             end
@@ -145,6 +146,9 @@ module Azure
                   end
                 end
               end
+            end
+            if params[:custom_data]
+              xml.CustomData params[:custom_data]
             end
           end
         elsif options[:os_type] == 'Windows'

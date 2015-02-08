@@ -65,12 +65,12 @@ module Azure
       #  ==== Params
       #
       # Accepted key/value pairs are:
-      # * +:vm_name+        - String.  Name of virtual machine.
-      # * +:vm_user+        - String.  User name for the virtual machine instance.
-      # * +:password+       - String.  A description for the hosted service.
-      # * +:image+          - String.  Name of the disk image to use to create the virtual machine.
-      # * +:location+       - String. The location where the virtual machine will be created.
-      # * +:affinity_group_name - String. The affinity group name to be used
+      # * +:vm_name+            - String.  Name of virtual machine.
+      # * +:vm_user+            - String.  User name for the virtual machine instance.
+      # * +:password+           - String.  A description for the hosted service.
+      # * +:image+              - String.  Name of the disk image to use to create the virtual machine.
+      # * +:location+           - String. The location where the virtual machine will be created. Required if a Affinity Group isn't specified.
+      # * +:affinity_group_name - String. The affinity group name to be used. Required if a location isn't specified.
       # for the cloud service and the storage account if these do not exist.
       #
       #  ==== Options
@@ -90,6 +90,8 @@ module Azure
       # * +:winrm_transport+          - Array. Specifies WINRM transport protocol.
       # * +:availability_set_name+    - String. Specifies the availability set name.
       # * +:reserved_ip_name+         - String. Specifies the reserved IP name.
+      # * +:virtual_network_name+     - String. Specifies the virtual network name.
+      # * +:subnet_name+              - String. Specifies the subnet name of the virtual network name.
       #
       # Returns Azure::VirtualMachineManagement::VirtualMachine objects of newly created instance.
       #
@@ -109,13 +111,17 @@ module Azure
           virtual_networks = virtual_network_service.list_virtual_networks.select { |x| x.name == options[:virtual_network_name] }
           if virtual_networks.empty?
             Loggerx.error_with_exit "Virtual network #{options[:virtual_network_name]} doesn't exists"
-          else
+          elsif !virtual_networks.first.affinity_group.nil? && !virtual_networks.first.affinity_group.empty?
             optionals[:affinity_group_name] = virtual_networks.first.affinity_group
           end
-        elsif options[:affinity_group_name]
-          optionals[:affinity_group_name] = options[:affinity_group_name]
-        else
-          optionals[:location] = params[:location]
+        end
+        
+        if optionals[:affinity_group_name].nil?
+          if params[:affinity_group_name]
+            optionals[:affinity_group_name] = params[:affinity_group_name]
+          else
+            optionals[:location] = params[:location]
+          end
         end
         cloud_service = Azure::CloudServiceManagementService.new
         cloud_service.create_cloud_service(options[:cloud_service_name], optionals)
@@ -479,7 +485,7 @@ module Azure
         if add_role
           params_keys += ['cloud_service_name']
         else
-          params_keys += ['location']
+          errors << "location or affinity_group_name" if (params['location'].nil? && params['affinity_group_name'].nil?)
         end
         params_keys.each do |key|
           errors << key if params[key.to_sym].nil?
@@ -490,7 +496,7 @@ module Azure
         end
 
         if errors.empty?
-          validate_location(params[:location]) unless add_role
+          validate_location(params[:location]) unless (add_role || params['affinity_group_name'].nil?)
           validate_role_size(options[:vm_size])
           params[:certificate] = {}
           if certificate_required?(params, options)
