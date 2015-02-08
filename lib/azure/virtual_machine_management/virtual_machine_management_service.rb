@@ -485,7 +485,7 @@ module Azure
         if add_role
           params_keys += ['cloud_service_name']
         else
-          errors << "location or affinity_group_name" if (params['location'].nil? && params['affinity_group_name'].nil?)
+          errors << "location or affinity_group_name" if (params[:location].nil? && params[:affinity_group_name].nil?)
         end
         params_keys.each do |key|
           errors << key if params[key.to_sym].nil?
