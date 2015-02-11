@@ -406,6 +406,7 @@ module Azure
             xml.DiskLabel options[:disk_label]
             xml.DiskName options[:disk_name] if options[:import]
             xml.LogicalDiskSizeInGB options[:disk_size] || 100
+            xml.Lun options[:lun] || 0
             unless options[:import]
               disk_name = media_link[/([^\/]+)$/]
               media_link = media_link.gsub(/#{disk_name}/, (Time.now.strftime('disk_%Y_%m_%d_%H_%M')) + '.vhd')

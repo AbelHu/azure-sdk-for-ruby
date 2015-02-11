@@ -438,6 +438,7 @@ module Azure
       #   The default is ReadOnly. Possible values are: None, ReadOnly, ReadWrite
       # * +:disk_label+    - String. Specifies the description of the data disk.
       # * +:disk_size+     - String. Specifies the size of disk in GB
+      # * +:lun+           - Integer. Specifies the Logical Unit Number (LUN) for the disk. 
       #
       # See http://msdn.microsoft.com/en-us/library/windowsazure/jj157199.aspx
       #
