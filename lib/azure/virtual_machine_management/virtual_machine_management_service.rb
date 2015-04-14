@@ -65,12 +65,13 @@ module Azure
       #  ==== Params
       #
       # Accepted key/value pairs are:
-      # * +:vm_name+            - String.  Name of virtual machine.
-      # * +:vm_user+            - String.  User name for the virtual machine instance.
-      # * +:password+           - String.  A description for the hosted service.
-      # * +:image+              - String.  Name of the disk image to use to create the virtual machine.
-      # * +:location+           - String. The location where the virtual machine will be created. Required if a Affinity Group isn't specified.
-      # * +:affinity_group_name - String. The affinity group name to be used. Required if a location isn't specified.
+      # * +:vm_name+                          - String.  Name of virtual machine.
+      # * +:vm_user+                          - String.  User name for the virtual machine instance.
+      # * +:password+                         - String.  A description for the hosted service.
+      # * +:image+                            - String.  Name of the disk image to use to create the virtual machine.
+      # * +:location+                         - String. The location where the virtual machine will be created. Required if a Affinity Group isn't specified.
+      # * +:affinity_group_name               - String. The affinity group name to be used. Required if a location isn't specified.
+      # * +:DisableSshPasswordAuthentication  - Boolean. Specifies whether SSH password authentication is disabled. By default this value is set to true.
       # for the cloud service and the storage account if these do not exist.
       #
       #  ==== Options
@@ -99,6 +100,7 @@ module Azure
       # http://msdn.microsoft.com/en-us/library/windowsazure/jj157194.aspx
       # http://msdn.microsoft.com/en-us/library/windowsazure/jj157186.aspx
       def create_virtual_machine(params, options = {})
+        params[:DisableSshPasswordAuthentication] = true unless params.has_key? :DisableSshPasswordAuthentication
         options[:os_type] = get_os_type(params[:image])
         validate_deployment_params(params, options)
         options[:deployment_name] ||= options[:cloud_service_name]

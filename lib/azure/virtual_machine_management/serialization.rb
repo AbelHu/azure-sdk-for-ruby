@@ -134,8 +134,8 @@ module Azure
             xml.UserName params[:vm_user]
             if params[:password]
               xml.UserPassword params[:password]
-              xml.DisableSshPasswordAuthentication 'false'
             end
+            xml.DisableSshPasswordAuthentication "#{params[:DisableSshPasswordAuthentication]}"
             if fingerprint
               xml.SSH do
                 xml.PublicKeys do
